@@ -1,0 +1,89 @@
+#!/usr/bin/env node
+
+const download = require('download-git-repo')
+const program = require('commander')
+const exists = require('fs').existsSync
+const os = require('os')
+const path = require('path')
+const chalk = require('chalk')
+const inquirer = require('inquirer')
+const ora = require('ora')
+
+// lib
+const logger = require('../lib/logger')
+const padding = require('../lib/padding')
+const generate = require('../lib/generate')
+const checkRepo = require('../lib/check-repo')
+
+program
+  .usage('<template-name> [project-name]')
+  .option('-c, --clone', 'use git clone')
+  .on('--help', () => {
+    console.log('  Examples:')
+    console.log()
+    console.log(chalk.gray('  # create a new project with an lingxi template'))
+    console.log('    $ laracli init web blog')
+    console.log()
+  })
+
+/**
+ * Help
+ */
+
+function help () {
+  program.parse(process.argv)
+  if (program.args.length < 1) {
+    return program.help()
+  }
+}
+
+help()
+
+/**
+ * Padding
+ */
+padding()
+
+/**
+ * Settings
+ */
+const template = program.args[0]
+const hasSlash = template.includes('/')
+const rawName = program.args[1]
+const inPlace = !rawName || rawName === '.'
+const name = inPlace ? path.relative('../', process.cwd()) : rawName
+const to = path.resolve(rawName || '.')
+const clone = program.clone || false
+
+if (exists(to)) {
+  inquirer.prompt([{
+    type: 'confirm',
+    message: inPlace
+      ? 'Genarate project in current directory?'
+      : 'Target directory exists. Continue?',
+    name: 'ok'
+  }], function (answers) {
+    if (answers.ok) {
+      run()
+    }
+  })
+} else {
+  run()
+}
+
+/**
+ * download from github template and generate the project.
+ */
+
+function run () {
+  // check if template is local
+  if (hasSlash && exists(template)) {
+    generate(name, template, to, err => {
+      if (err) logger.fatal(err)
+    })
+  } else {
+    checkRepo(() => {
+
+    })
+  }
+}

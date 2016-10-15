@@ -4,17 +4,22 @@ const logger = require('../lib/logger')
 const filter = require('../lib/filter')
 const request = require('request')
 const chalk = require('chalk')
+const ora = require('ora')
 
+// lib
 const prefix = require('../lib/config').prefix
+const padding = require('../lib/padding')
 
 /**
  * Padding-Top-Bottom.
  */
+padding()
 
-console.log()
-process.on('exit', function () {
-  console.log()
-})
+/**
+ * loading
+ */
+const spinner = ora('fetching from github')
+spinner.start()
 
 /**
  * List repos
@@ -25,6 +30,8 @@ request({
     'User-Agent': 'laravel-cli'
   }
 }, (err, res, body) => {
+  spinner.stop()
+
   if (err) logger.fatal(err)
 
   let requestBody = JSON.parse(body)
