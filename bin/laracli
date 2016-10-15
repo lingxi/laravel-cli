@@ -1,0 +1,8 @@
+#!/usr/bin/env node
+
+require('commander')
+  .version(require('../package').version)
+  .usage('<command>')
+  .command('init', 'generate a new laravel project.')
+  .command('list', 'list available template.')
+  .parse(process.argv)

@@ -1,0 +1,57 @@
+#!/usr/bin/env node
+
+const logger = require('../lib/logger')
+const filter = require('../lib/filter')
+const request = require('request')
+const chalk = require('chalk')
+
+const prefix = require('../lib/config').prefix
+
+/**
+ * Padding-Top-Bottom.
+ */
+
+console.log()
+process.on('exit', function () {
+  console.log()
+})
+
+/**
+ * List repos
+ */
+request({
+  url: 'https://api.github.com/users/LingxiTeam/repos',
+  headers: {
+    'User-Agent': 'laravel-cli'
+  }
+}, (err, res, body) => {
+  if (err) logger.fatal(err)
+
+  let requestBody = JSON.parse(body)
+
+  if (Array.isArray(requestBody)) {
+    console.log('  Available templates:')
+    console.log()
+
+    let repos = filter.getLaravelRepo(requestBody)
+    repos.forEach(repo => {
+      console.log(
+        '  ' + chalk.yellow('*') +
+        '  ' + chalk.blue(repo.name.substring(prefix.length)) +
+        ' - ' + repo.description
+      )
+    })
+
+    consoleCustomRepo()
+  } else {
+    console.error(requestBody.message)
+  }
+})
+
+function consoleCustomRepo () {
+  console.log(
+    '  ' + chalk.yellow('*') +
+    '  ' + chalk.blue('custom') +
+    ' - ' + '自定义 laravel 项目'
+  )
+}
