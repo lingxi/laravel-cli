@@ -1,14 +1,11 @@
 #!/usr/bin/env node
 
-const logger = require('../lib/logger')
-const filter = require('../lib/filter')
-const request = require('request')
 const chalk = require('chalk')
-const ora = require('ora')
 
 // lib
 const prefix = require('../lib/config').prefix
 const padding = require('../lib/padding')
+const listRepo = require('../lib/list-repo')
 
 /**
  * Padding-Top-Bottom.
@@ -16,43 +13,17 @@ const padding = require('../lib/padding')
 padding()
 
 /**
- * loading
- */
-const spinner = ora('fetching from github')
-spinner.start()
-
-/**
  * List repos
  */
-request({
-  url: 'https://api.github.com/users/LingxiTeam/repos',
-  headers: {
-    'User-Agent': 'laravel-cli'
-  }
-}, (err, res, body) => {
-  spinner.stop()
-
-  if (err) logger.fatal(err)
-
-  let requestBody = JSON.parse(body)
-
-  if (Array.isArray(requestBody)) {
-    console.log('  Available templates:')
-    console.log()
-
-    let repos = filter.getLaravelRepo(requestBody)
-    repos.forEach(repo => {
-      console.log(
-        '  ' + chalk.yellow('*') +
-        '  ' + chalk.blue(repo.name.substring(prefix.length)) +
-        ' - ' + repo.description
-      )
-    })
-
-    consoleCustomRepo()
-  } else {
-    console.error(requestBody.message)
-  }
+listRepo(repos => {
+  repos.forEach(repo => {
+    console.log(
+      '  ' + chalk.yellow('*') +
+      '  ' + chalk.blue(repo.name.substring(prefix.length)) +
+      ' - ' + repo.description
+    )
+  })
+  consoleCustomRepo()
 })
 
 function consoleCustomRepo () {

@@ -4,7 +4,9 @@ const download = require('download-git-repo')
 const program = require('commander')
 const exists = require('fs').existsSync
 const os = require('os')
+const rm = require('rimraf').sync
 const path = require('path')
+const uid = require('uid')
 const chalk = require('chalk')
 const inquirer = require('inquirer')
 const ora = require('ora')
@@ -13,7 +15,10 @@ const ora = require('ora')
 const logger = require('../lib/logger')
 const padding = require('../lib/padding')
 const generate = require('../lib/generate')
+const checkVersion = require('../lib/check-version')
 const checkRepo = require('../lib/check-repo')
+const prefix = require('../lib/config').prefix
+const repoUser = require('../lib/config').repoUser
 
 program
   .usage('<template-name> [project-name]')
@@ -82,8 +87,37 @@ function run () {
       if (err) logger.fatal(err)
     })
   } else {
-    checkRepo(() => {
-
+    checkVersion(() => {
+      if (!hasSlash) {
+        // avariable template
+        let fullTemplate = `${repoUser}/${prefix}${template}`
+        checkRepo(fullTemplate, () => {
+          downloadAndGenerate(fullTemplate)
+        })
+      } else {
+        //
+      }
     })
   }
+}
+
+/**
+ * Download and generate from a template repo.
+ *
+ * @param {String} template
+ */
+
+function downloadAndGenerate (template) {
+  let tmp = `${os.tmpdir()}/${prefix}${uid()}`
+  let spinner = ora('downloading template')
+  spinner.start()
+  download(template, tmp, { clone: clone }, err => {
+    spinner.stop()
+
+    process.on('exit', () => {
+      rm(tmp)
+    })
+
+    if (err) logger.fatal(`Failed to download repo ${template}: ${err.message.trim()}`)
+  })
 }
