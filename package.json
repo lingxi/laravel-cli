@@ -1,6 +1,6 @@
 {
   "name": "laravel-cli",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "灵析 laravel 项目初始化客户端",
   "main": "lib/index.js",
   "preferGlobal": true,
