@@ -15,7 +15,7 @@ const fse = require('fs-extra')
 const logger = require('../lib/logger')
 const padding = require('../lib/padding')
 const generate = require('../lib/generate')
-const checkVersion = require('../lib/check-version')
+const checkPHPVersion = require('../lib/check-php-version')
 const checkRepo = require('../lib/check-repo')
 const prefix = require('../lib/config').prefix
 const repoUser = require('../lib/config').repoUser
@@ -93,15 +93,19 @@ function run () {
       logger.success(`Generated ${name} successfully!`)
     })
   } else {
-    checkVersion(() => {
+    checkPHPVersion(() => {
       if (!hasSlash) {
+        // when custom
+        if (template === 'custom') {
+          logger.fatal('自定义项目暂时不行!')
+        }
         // avariable template
         let fullTemplate = `${repoUser}/${prefix}${template}`
         checkRepo(fullTemplate, () => {
           downloadAndGenerate(fullTemplate)
         })
       } else {
-        //
+        logger.fatal('目前只能使用官方仓库模板!')
       }
     })
   }
@@ -129,11 +133,10 @@ function downloadAndGenerate (repo) {
       if (err) logger.fatal(err)
 
       logger.success(`${name} initialize successfully!`)
-      console.log(`
-  You can run your project by below commands.',
-  $ cd ${name}
-  $ ./init.sh'
-      `)
+      newline()
+      console.log('  You can run your project by below commands:')
+      if (!inPlace) console.log(`$ cd ${name}`)
+      console.log('  $ ./init.sh')
     })
   })
 }
