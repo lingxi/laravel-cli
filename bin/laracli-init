@@ -10,6 +10,8 @@ const uid = require('uid')
 const chalk = require('chalk')
 const inquirer = require('inquirer')
 const fse = require('fs-extra')
+const exec = require('child_process').exec
+const fs = require('fs')
 
 // lib
 const logger = require('../lib/logger')
@@ -70,7 +72,7 @@ if (exists(to)) {
       ? 'Genarate project in current directory?'
       : 'Target directory exists. Continue?',
     name: 'ok'
-  }], function (answers) {
+  }]).then(answers => {
     if (answers.ok) {
       run()
     }
@@ -135,8 +137,22 @@ function downloadAndGenerate (repo) {
       logger.success(`${name} initialize successfully!`)
       newline()
       console.log('  You can run your project by below commands:')
-      if (!inPlace) console.log(`$ cd ${name}`)
+      if (!inPlace) console.log(`  $ cd ${name}`)
       console.log('  $ ./init.sh')
+
+      chmodToInit()
     })
   })
+}
+
+/**
+ * Run chmod to init.sh
+ */
+
+function chmodToInit () {
+  if (inPlace) {
+    exec('chmod +x init.sh')
+  } else {
+    fs.chmodSync(`${name}/init.sh`, '0777')
+  }
 }

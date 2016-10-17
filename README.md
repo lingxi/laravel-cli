@@ -1,4 +1,4 @@
-# laravel-cli [![Build Status](https://img.shields.io/circleci/project/lingxiteam/laravel-cli/master.svg)](https://circleci.com/gh/lingxiteam/laravel-cli) [![npm package](https://img.shields.io/npm/v/laravel-cli.svg)](https://www.npmjs.com/package/laravel-cli)
+# laravel-cli [![Build Status](https://travis-ci.org/LingxiTeam/laravel-cli.svg?branch=master)](https://travis-ci.org/LingxiTeam/laravel-cli.svg?branch=master) [![npm package](https://img.shields.io/npm/v/laravel-cli.svg)](https://www.npmjs.com/package/laravel-cli)
 
 [目前]灵析内部快速生成 laravel 项目.
 
